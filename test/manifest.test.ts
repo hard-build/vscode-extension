@@ -1,0 +1,46 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import test from "node:test";
+
+interface Manifest {
+  version?: unknown;
+  contributes?: {
+    configurationDefaults?: Record<string, unknown>;
+  };
+  scripts?: Record<string, unknown>;
+}
+
+interface Lockfile {
+  version?: unknown;
+  packages?: Record<string, { version?: unknown }>;
+}
+
+const project = path.resolve(__dirname, "..", "..");
+
+function readJson<T>(file: string): T {
+  return JSON.parse(readFileSync(path.join(project, file), "utf8")) as T;
+}
+
+test("manifest selects hard as the default C/C++ provider and formatter", () => {
+  const manifest = readJson<Manifest>("package.json");
+  const defaults = manifest.contributes?.configurationDefaults;
+  assert.equal(
+    defaults?.["C_Cpp.default.configurationProvider"],
+    "hard-build.hard-vscode",
+  );
+  const formatter = { "editor.defaultFormatter": "hard-build.hard-vscode" };
+  assert.deepEqual(defaults?.["[c]"], formatter);
+  assert.deepEqual(defaults?.["[cpp]"], formatter);
+});
+
+test("manifest, lockfile, and VSIX output use one version", () => {
+  const manifest = readJson<Manifest>("package.json");
+  const lockfile = readJson<Lockfile>("package-lock.json");
+  assert.equal(lockfile.version, manifest.version);
+  assert.equal(lockfile.packages?.[""]?.version, manifest.version);
+  assert.equal(
+    manifest.scripts?.package,
+    `npm run check && vsce package --out hard-vscode-${String(manifest.version)}.vsix`,
+  );
+});

@@ -1,0 +1,333 @@
+{
+  "name": "hard-vscode",
+  "displayName": "hard Build System",
+  "description": "First-class build, test, diagnostics, task, and IntelliSense support for hard C and C++ projects.",
+  "version": "0.1.2",
+  "publisher": "hard-build",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hard-build/vscode-extension.git"
+  },
+  "homepage": "https://github.com/hard-build/vscode-extension#readme",
+  "bugs": {
+    "url": "https://github.com/hard-build/vscode-extension/issues"
+  },
+  "engines": {
+    "vscode": "^1.125.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Testing"
+  ],
+  "keywords": [
+    "hard",
+    "build",
+    "c",
+    "c++",
+    "gtest",
+    "google test"
+  ],
+  "extensionKind": [
+    "workspace"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": false,
+      "description": "hard tasks and commands execute workspace source and build tools."
+    },
+    "virtualWorkspaces": {
+      "supported": false
+    }
+  },
+  "main": "./out/src/extension.js",
+  "activationEvents": [
+    "onStartupFinished",
+    "onCommand:hard.format",
+    "onCommand:hard.build",
+    "onCommand:hard.buildNoCache",
+    "onCommand:hard.fetch",
+    "onCommand:hard.test",
+    "onCommand:hard.testNoCache",
+    "onCommand:hard.testFile",
+    "onCommand:hard.listTests",
+    "onCommand:hard.refreshTests",
+    "onCommand:hard.openOutput",
+    "onCommand:hard.refreshIntelliSense",
+    "onTaskType:hard"
+  ],
+  "extensionDependencies": [
+    "ms-vscode.cpptools"
+  ],
+  "contributes": {
+    "configurationDefaults": {
+      "C_Cpp.default.configurationProvider": "hard-build.hard-vscode",
+      "[c]": {
+        "editor.defaultFormatter": "hard-build.hard-vscode"
+      },
+      "[cpp]": {
+        "editor.defaultFormatter": "hard-build.hard-vscode"
+      }
+    },
+    "commands": [
+      {
+        "command": "hard.format",
+        "title": "hard: Format"
+      },
+      {
+        "command": "hard.build",
+        "title": "hard: Build"
+      },
+      {
+        "command": "hard.buildNoCache",
+        "title": "hard: Rebuild Without Cache"
+      },
+      {
+        "command": "hard.fetch",
+        "title": "hard: Fetch Dependencies"
+      },
+      {
+        "command": "hard.test",
+        "title": "hard: Test"
+      },
+      {
+        "command": "hard.testNoCache",
+        "title": "hard: Test Without Cache"
+      },
+      {
+        "command": "hard.testFile",
+        "title": "hard: Test Current File"
+      },
+      {
+        "command": "hard.listTests",
+        "title": "hard: List Tests"
+      },
+      {
+        "command": "hard.refreshTests",
+        "title": "hard: Refresh Test Explorer"
+      },
+      {
+        "command": "hard.openOutput",
+        "title": "hard: Show Output"
+      },
+      {
+        "command": "hard.refreshIntelliSense",
+        "title": "hard: Refresh IntelliSense"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "hard.build",
+          "group": "navigation@80",
+          "when": "resourceLangId == c || resourceLangId == cpp"
+        },
+        {
+          "command": "hard.testFile",
+          "group": "navigation@81",
+          "when": "resourceFilename =~ /_test\\.(c|cc|cpp|c\\+\\+)$/i"
+        }
+      ]
+    },
+    "taskDefinitions": [
+      {
+        "type": "hard",
+        "required": [
+          "command"
+        ],
+        "properties": {
+          "command": {
+            "type": "string",
+            "enum": [
+              "format",
+              "build",
+              "fetch",
+              "test"
+            ],
+            "description": "hard command to run."
+          },
+          "paths": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Workspace-relative paths passed to hard."
+          },
+          "tests": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Exact or wildcard hard test selectors."
+          },
+          "listTests": {
+            "type": "boolean",
+            "description": "List normalized test names instead of running tests."
+          },
+          "noCache": {
+            "type": "boolean",
+            "description": "Force build/test work without cached artifacts."
+          },
+          "silent": {
+            "type": "boolean",
+            "description": "Only print command results and errors."
+          },
+          "output": {
+            "type": "string",
+            "description": "Build output path."
+          },
+          "format": {
+            "type": "string",
+            "description": "Format style file below HARD_ROOT/format."
+          }
+        }
+      }
+    ],
+    "configuration": {
+      "title": "hard",
+      "properties": {
+        "hard.executable": {
+          "type": "string",
+          "default": "hard",
+          "scope": "window",
+          "description": "Path or command name of the hard executable."
+        },
+        "hard.environment": {
+          "type": "object",
+          "default": {},
+          "scope": "window",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Environment variables added or overridden for hard and IntelliSense."
+        },
+        "hard.jobs": {
+          "type": "integer",
+          "default": 0,
+          "minimum": 0,
+          "scope": "resource",
+          "description": "Parallel job count. Zero uses every logical CPU."
+        },
+        "hard.noCache": {
+          "type": "boolean",
+          "default": false,
+          "scope": "resource",
+          "description": "Add --no-cache to build and test commands by default."
+        },
+        "hard.noColor": {
+          "type": "boolean",
+          "default": true,
+          "scope": "resource",
+          "description": "Add --no-color to make Output and diagnostics stable."
+        },
+        "hard.output": {
+          "type": "string",
+          "default": "",
+          "scope": "resource",
+          "description": "Default build output path. Relative paths are resolved from the workspace folder."
+        },
+        "hard.format": {
+          "type": "string",
+          "default": "",
+          "scope": "resource",
+          "description": "Optional style file name below HARD_ROOT/format."
+        },
+        "hard.testSourcePattern": {
+          "type": "string",
+          "default": "**/*_[tT][eE][sS][tT].{[cC],[cC][cC],[cC][pP][pP],[cC]++}",
+          "scope": "resource",
+          "description": "Glob used to discover hard GoogleTest source files."
+        },
+        "hard.testExcludePattern": {
+          "type": "string",
+          "default": "**/{.git,.hg,.svn,node_modules}/**",
+          "scope": "resource",
+          "description": "Glob excluded from hard test discovery."
+        },
+        "hard.intelliSense.enabled": {
+          "type": "boolean",
+          "default": true,
+          "scope": "resource",
+          "description": "Provide hard-aware per-source configuration to Microsoft C/C++."
+        },
+        "hard.intelliSense.compilerPath": {
+          "type": "string",
+          "default": "",
+          "scope": "resource",
+          "description": "Compiler used by IntelliSense. Empty uses HARD_CC, then c++."
+        },
+        "hard.intelliSense.cppStandard": {
+          "type": "string",
+          "default": "c++20",
+          "enum": [
+            "c++98",
+            "c++03",
+            "c++11",
+            "c++14",
+            "c++17",
+            "c++20",
+            "c++23",
+            "c++26",
+            "gnu++98",
+            "gnu++03",
+            "gnu++11",
+            "gnu++14",
+            "gnu++17",
+            "gnu++20",
+            "gnu++23",
+            "gnu++26"
+          ],
+          "scope": "resource",
+          "description": "Fallback C++ standard when HARD_CFLAGS has no -std option."
+        },
+        "hard.intelliSense.extraIncludePaths": {
+          "type": "array",
+          "default": [],
+          "scope": "resource",
+          "items": {
+            "type": "string"
+          },
+          "description": "Additional workspace-relative or absolute include paths."
+        },
+        "hard.intelliSense.extraDefines": {
+          "type": "array",
+          "default": [],
+          "scope": "resource",
+          "items": {
+            "type": "string"
+          },
+          "description": "Additional preprocessor definitions."
+        },
+        "hard.intelliSense.extraCompilerArguments": {
+          "type": "array",
+          "default": [],
+          "scope": "resource",
+          "items": {
+            "type": "string"
+          },
+          "description": "Additional compiler arguments for Microsoft C/C++."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p tsconfig.json",
+    "watch": "tsc -p tsconfig.json --watch",
+    "lint": "eslint src test",
+    "test": "npm run compile && node --test out/test/*.test.js",
+    "check": "npm run lint && npm test",
+    "package": "npm run check && vsce package --out hard-vscode-0.1.2.vsix",
+    "vscode:prepublish": "npm run compile"
+  },
+  "dependencies": {
+    "vscode-cpptools": "7.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "24.10.0",
+    "@types/vscode": "1.125.0",
+    "@vscode/vsce": "3.9.2",
+    "eslint": "10.0.0",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.67.0"
+  }
+}
