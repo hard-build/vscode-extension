@@ -9,7 +9,11 @@ export function isSourceFile(file: string): boolean {
 
 export function isTestSource(file: string): boolean {
   const extension = path.extname(file).toLowerCase();
-  return sourceExtensions.has(extension) && file.slice(0, -extension.length).toLowerCase().endsWith("_test");
+  const stem = file.slice(0, -extension.length).toLowerCase();
+  return (
+    sourceExtensions.has(extension) &&
+    (stem.endsWith(".test") || stem.endsWith("_test"))
+  );
 }
 
 export function resolveWorkspacePath(workspace: string, value: string): string {

@@ -6,7 +6,11 @@ import test from "node:test";
 interface Manifest {
   version?: unknown;
   contributes?: {
+    configuration?: {
+      properties?: Record<string, { default?: unknown }>;
+    };
     configurationDefaults?: Record<string, unknown>;
+    menus?: Record<string, Array<{ command?: unknown; when?: unknown }>>;
   };
   scripts?: Record<string, unknown>;
 }
@@ -32,6 +36,21 @@ test("manifest selects hard as the default C/C++ provider and formatter", () => 
   const formatter = { "editor.defaultFormatter": "hard-build.hard-vscode" };
   assert.deepEqual(defaults?.["[c]"], formatter);
   assert.deepEqual(defaults?.["[cpp]"], formatter);
+});
+
+test("manifest discovers preferred and legacy hard test sources", () => {
+  const manifest = readJson<Manifest>("package.json");
+  assert.equal(
+    manifest.contributes?.configuration?.properties?.["hard.testSourcePattern"]?.default,
+    "**/*{.[tT][eE][sS][tT],_[tT][eE][sS][tT]}.{[cC],[cC][cC],[cC][pP][pP],[cC]++}",
+  );
+  const testFileMenu = manifest.contributes?.menus?.["editor/title"]?.find(
+    (entry) => entry.command === "hard.testFile",
+  );
+  assert.equal(
+    testFileMenu?.when,
+    "resourceFilename =~ /(?:\\.test|_test)\\.(c|cc|cpp|c\\+\\+)$/i",
+  );
 });
 
 test("manifest, lockfile, and VSIX output use one version", () => {

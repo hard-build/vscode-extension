@@ -125,7 +125,7 @@
         {
           "command": "hard.testFile",
           "group": "navigation@81",
-          "when": "resourceFilename =~ /_test\\.(c|cc|cpp|c\\+\\+)$/i"
+          "when": "resourceFilename =~ /(?:\\.test|_test)\\.(c|cc|cpp|c\\+\\+)$/i"
         }
       ]
     },
@@ -234,9 +234,9 @@
         },
         "hard.testSourcePattern": {
           "type": "string",
-          "default": "**/*_[tT][eE][sS][tT].{[cC],[cC][cC],[cC][pP][pP],[cC]++}",
+          "default": "**/*{.[tT][eE][sS][tT],_[tT][eE][sS][tT]}.{[cC],[cC][cC],[cC][pP][pP],[cC]++}",
           "scope": "resource",
-          "description": "Glob used to discover hard GoogleTest source files."
+          "description": "Glob used to discover hard GoogleTest source files. The default finds preferred *.test.ext and legacy *_test.ext names."
         },
         "hard.testExcludePattern": {
           "type": "string",

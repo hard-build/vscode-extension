@@ -127,7 +127,7 @@ export class HardCommands implements vscode.Disposable {
     const resource = this.activeResource(rawResource);
     if (resource === undefined || !isTestSource(resource.fsPath)) {
       void vscode.window.showErrorMessage(
-        "The active file is not a hard *_test.c, *_test.cc, *_test.cpp, or *_test.c++ source.",
+        "The active file is not a hard *.test.c, *.test.cc, *.test.cpp, or *.test.c++ source (legacy *_test names are also supported).",
       );
       return;
     }

@@ -51,7 +51,7 @@ export function getHardSettings(folder: vscode.WorkspaceFolder): HardSettings {
     format: configuration.get("format", ""),
     testSourcePattern: configuration.get(
       "testSourcePattern",
-      "**/*_[tT][eE][sS][tT].{[cC],[cC][cC],[cC][pP][pP],[cC]++}",
+      "**/*{.[tT][eE][sS][tT],_[tT][eE][sS][tT]}.{[cC],[cC][cC],[cC][pP][pP],[cC]++}",
     ),
     testExcludePattern: configuration.get(
       "testExcludePattern",

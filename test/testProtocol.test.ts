@@ -10,7 +10,7 @@ import {
 test("parseHardTestList accepts normalized single and grouped output", () => {
   assert.deepEqual(
     parseHardTestList(
-      "first_test.cpp:\n  Suite.First\n\nsecond_test.cpp:\n  Typed/Suite.HandlesValue\n",
+      "first.test.cpp:\n  Suite.First\n\nsecond.test.cpp:\n  Typed/Suite.HandlesValue\n",
     ),
     ["Suite.First", "Typed/Suite.HandlesValue"],
   );
@@ -50,6 +50,6 @@ test("parseGoogleTestResults reports passed, failed, and skipped cases", () => {
 });
 
 test("isCachedTestRun recognizes hard cache output", () => {
-  assert.equal(isCachedTestRun("[6/6] Testing calculator_test (CACHED)\n"), true);
-  assert.equal(isCachedTestRun("[6/6] Testing calculator_test\n"), false);
+  assert.equal(isCachedTestRun("[6/6] Testing calculator.test (CACHED)\n"), true);
+  assert.equal(isCachedTestRun("[6/6] Testing calculator.test\n"), false);
 });

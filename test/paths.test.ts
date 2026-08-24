@@ -26,6 +26,8 @@ test("hard paths match backend defaults and source-forward layout", () => {
 test("source classification follows hard extensions", () => {
   assert.equal(isSourceFile("example.CPP"), true);
   assert.equal(isSourceFile("example.hpp"), false);
+  assert.equal(isTestSource("example.test.c++"), true);
+  assert.equal(isTestSource("example.TEST.CPP"), true);
   assert.equal(isTestSource("example_test.c++"), true);
   assert.equal(isTestSource("example.cpp"), false);
 });
