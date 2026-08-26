@@ -63,3 +63,21 @@ test("manifest, lockfile, and VSIX output use one version", () => {
     `npm run check && vsce package --out hard-vscode-${String(manifest.version)}.vsix`,
   );
 });
+
+test("manifest places hard build in the Run or Debug menu", () => {
+  const manifest = readJson<Manifest>("package.json");
+  const buildMenu = manifest.contributes?.menus?.["editor/title/run"]?.find(
+    (entry) => entry.command === "hard.build",
+  );
+
+  assert.equal(
+    buildMenu?.when,
+    "resourceLangId == c || resourceLangId == cpp",
+  );
+  assert.equal(
+    manifest.contributes?.menus?.["editor/title"]?.some(
+      (entry) => entry.command === "hard.build",
+    ),
+    false,
+  );
+});

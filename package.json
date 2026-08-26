@@ -3,7 +3,7 @@
   "displayName": "Hard Build",
   "icon": "hard-build-square.png",
   "description": "First-class build, test, diagnostics, task, and IntelliSense support for hard C and C++ projects.",
-  "version": "0.1.5",
+  "version": "0.1.7",
   "publisher": "hard-build",
   "license": "MIT",
   "repository": {
@@ -119,14 +119,16 @@
     "menus": {
       "editor/title": [
         {
-          "command": "hard.build",
-          "group": "navigation@80",
-          "when": "resourceLangId == c || resourceLangId == cpp"
-        },
-        {
           "command": "hard.testFile",
           "group": "navigation@81",
           "when": "resourceFilename =~ /(?:\\.test|_test)\\.(c|cc|cpp|c\\+\\+)$/i"
+        }
+      ],
+      "editor/title/run": [
+        {
+          "command": "hard.build",
+          "group": "navigation@80",
+          "when": "resourceLangId == c || resourceLangId == cpp"
         }
       ]
     },
@@ -317,7 +319,7 @@
     "lint": "eslint src test",
     "test": "npm run compile && node --test out/test/*.test.js",
     "check": "npm run lint && npm test",
-    "package": "npm run check && vsce package --out hard-vscode-0.1.5.vsix",
+    "package": "npm run check && vsce package --out hard-vscode-0.1.7.vsix",
     "vscode:prepublish": "npm run compile"
   },
   "dependencies": {

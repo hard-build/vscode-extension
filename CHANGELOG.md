@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.7 - 2026-08-27
+
+- Discover open `*.test.*` sources and run individual GoogleTest cases from the editor gutter or cursor.
+
+## 0.1.6 - 2026-08-26
+
+- Move `hard: Build` into the editor `Run or Debug...` menu.
+
 ## 0.1.5 - 2026-08-26
 
 - Preserve transparent corners when rasterizing the extension icon for VSIX.

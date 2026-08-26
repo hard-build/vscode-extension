@@ -9,6 +9,7 @@ import {
 } from "./core/testProtocol";
 import { getHardSettings, hardPathArgument } from "./config";
 import { isTestSource } from "./core/paths";
+import { parseGoogleTestSource } from "./core/testSource";
 import type { HardOutput } from "./output";
 
 interface FolderMetadata {
@@ -116,22 +117,33 @@ export class HardTesting implements vscode.Disposable {
       }),
     );
 
-    const watcher = vscode.workspace.createFileSystemWatcher(
-      "**/*_[tT][eE][sS][tT].{[cC],[cC][cC],[cC][pP][pP],[cC]++}",
-    );
     this.disposables.push(
-      watcher,
-      watcher.onDidCreate((uri) => {
-        void this.refreshFolderFor(uri);
-      }),
-      watcher.onDidDelete((uri) => {
-        void this.refreshFolderFor(uri);
-      }),
-      watcher.onDidChange((uri) => {
-        this.invalidateFile(uri);
+      vscode.workspace.onDidOpenTextDocument((document) => {
+        void this.discoverDocumentTests(document);
       }),
     );
+    for (const pattern of [
+      "**/*.[tT][eE][sS][tT].{[cC],[cC][cC],[cC][pP][pP],[cC]++}",
+      "**/*_[tT][eE][sS][tT].{[cC],[cC][cC],[cC][pP][pP],[cC]++}",
+    ]) {
+      const watcher = vscode.workspace.createFileSystemWatcher(pattern);
+      this.disposables.push(
+        watcher,
+        watcher.onDidCreate((uri) => {
+          void this.refreshFolderFor(uri);
+        }),
+        watcher.onDidDelete((uri) => {
+          void this.refreshFolderFor(uri);
+        }),
+        watcher.onDidChange((uri) => {
+          void this.refreshChangedFile(uri);
+        }),
+      );
+    }
     this.synchronizeRoots();
+    for (const document of vscode.workspace.textDocuments) {
+      void this.discoverDocumentTests(document);
+    }
   }
 
   public async refresh(): Promise<void> {
@@ -190,6 +202,43 @@ export class HardTesting implements vscode.Disposable {
     const root = this.controller.items.get(rootId(folder));
     if (root !== undefined) {
       await this.discoverFiles(root, folder);
+    }
+  }
+
+  private async refreshChangedFile(uri: vscode.Uri): Promise<void> {
+    this.invalidateFile(uri);
+    const document = vscode.workspace.textDocuments.find(
+      (candidate) => candidate.uri.toString() === uri.toString(),
+    );
+    if (document !== undefined) {
+      await this.discoverDocumentTests(document);
+    }
+  }
+
+  private async discoverDocumentTests(document: vscode.TextDocument): Promise<void> {
+    const uri = document.uri;
+    if (uri.scheme !== "file" || !isTestSource(uri.fsPath)) {
+      return;
+    }
+    const folder = vscode.workspace.getWorkspaceFolder(uri);
+    if (folder === undefined) {
+      return;
+    }
+    const root = this.controller.items.get(rootId(folder));
+    if (root === undefined) {
+      return;
+    }
+    let file = root.children.get(fileId(uri));
+    if (file === undefined) {
+      await this.discoverFiles(root, folder);
+      file = root.children.get(fileId(uri));
+    }
+    if (file === undefined || file.busy || !file.canResolveChildren) {
+      return;
+    }
+    const metadata = this.metadata.get(file.id);
+    if (metadata?.kind === "file") {
+      await this.discoverCases(file, metadata);
     }
   }
 
@@ -266,6 +315,17 @@ export class HardTesting implements vscode.Disposable {
         return [];
       }
 
+      const document = await vscode.workspace.openTextDocument(metadata.uri);
+      const sourceRanges = new Map(
+        parseGoogleTestSource(document.getText()).map((location) => [
+          location.name,
+          new vscode.Range(
+            document.positionAt(location.start),
+            document.positionAt(location.end),
+          ),
+        ] as const),
+      );
+
       for (const child of childItems(file)) {
         this.deleteMetadataTree(child);
       }
@@ -297,6 +357,7 @@ export class HardTesting implements vscode.Disposable {
           name.slice(separator + 1),
           metadata.uri,
         );
+        testCase.range = sourceRanges.get(name);
         this.metadata.set(testCase.id, {
           kind: "case",
           folder: metadata.folder,
