@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.3 - 2026-08-26
+
+- Rename extension display name to `Hard Build`.
+- Add `hard-build-square.svg` as the extension icon.
+
 ## 0.1.2 - 2026-08-23
 
 - Register hard as a C and C++ document formatter and select it by default.
