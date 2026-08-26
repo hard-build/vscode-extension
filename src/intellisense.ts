@@ -15,6 +15,7 @@ import {
 } from "vscode-cpptools";
 
 import { analyzeCompilerFlags } from "./core/compilerFlags";
+import { cachedLibraryIncludePaths } from "./core/parseCache";
 import {
   effectiveEnvironment,
   hardEnvironment,
@@ -185,6 +186,12 @@ class HardConfigurationProvider implements CustomConfigurationProvider {
     return {
       includePath: [
         ...analyzed.includePaths,
+        ...cachedLibraryIncludePaths(
+          root,
+          targetEnvironment,
+          folder.uri.fsPath,
+          uri.fsPath,
+        ),
         ...settings.intelliSense.extraIncludePaths.map((value) =>
           workspacePath(folder, value),
         ),
@@ -203,6 +210,8 @@ class HardConfigurationProvider implements CustomConfigurationProvider {
   ): WorkspaceBrowseConfiguration {
     const settings = getHardSettings(folder);
     const environment = this.environment(folder);
+    const root = hardRoot(environment);
+    const targetEnvironment = hardEnvironment(environment);
     const arguments_ = compilerArguments(environment);
     const analyzed = analyzeCompilerFlags(arguments_, folder.uri.fsPath);
     const fallbackStandard = asCppStandard(settings.intelliSense.cppStandard, "c++20");
@@ -210,6 +219,11 @@ class HardConfigurationProvider implements CustomConfigurationProvider {
       browsePath: [
         folder.uri.fsPath,
         ...analyzed.includePaths,
+        ...cachedLibraryIncludePaths(
+          root,
+          targetEnvironment,
+          folder.uri.fsPath,
+        ),
         ...settings.intelliSense.extraIncludePaths.map((value) =>
           workspacePath(folder, value),
         ),

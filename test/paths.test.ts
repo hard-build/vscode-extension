@@ -7,6 +7,7 @@ import {
   hardRoot,
   isSourceFile,
   isTestSource,
+  sourceBuildPath,
   sourceForwardPath,
 } from "../src/core/paths";
 
@@ -17,6 +18,10 @@ test("hard paths match backend defaults and source-forward layout", () => {
   assert.equal(hardEnvironment({ HARD_ENV: "debug" }), "debug");
 
   const source = path.resolve("/work/project/example.cpp");
+  assert.equal(
+    sourceBuildPath("/tmp/hard", "host", source),
+    path.join("/tmp/hard", "env", "host", "build", "work", "project", "example.cpp"),
+  );
   assert.equal(
     sourceForwardPath("/tmp/hard", "host", source),
     path.join("/tmp/hard", "env", "host", "build", "work", "project", "example.cpp.fwd.h"),

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.4 - 2026-08-26
+
+- Resolve vendor library headers from hard parse-cache metadata for IntelliSense.
+- Use a PNG extension icon for VSIX packaging compatibility.
+
 ## 0.1.3 - 2026-08-26
 
 - Rename extension display name to `Hard Build`.

@@ -40,12 +40,16 @@ export function hardEnvironment(environment: NodeJS.ProcessEnv): string {
     : environment.HARD_ENV;
 }
 
-export function sourceForwardPath(root: string, environment: string, source: string): string {
+export function sourceBuildPath(root: string, environment: string, source: string): string {
   const absoluteSource = path.resolve(source);
   const volumeRoot = path.parse(absoluteSource).root;
   const mirrored = path.relative(volumeRoot, absoluteSource);
   if (mirrored === ".." || mirrored.startsWith(`..${path.sep}`)) {
     throw new Error(`source path escapes its filesystem root: ${source}`);
   }
-  return path.join(root, "env", environment, "build", `${mirrored}.fwd.h`);
+  return path.join(root, "env", environment, "build", mirrored);
+}
+
+export function sourceForwardPath(root: string, environment: string, source: string): string {
+  return `${sourceBuildPath(root, environment, source)}.fwd.h`;
 }
