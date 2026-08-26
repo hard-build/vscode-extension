@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.5 - 2026-08-26
+
+- Preserve transparent corners when rasterizing the extension icon for VSIX.
+
 ## 0.1.4 - 2026-08-26
 
 - Resolve vendor library headers from hard parse-cache metadata for IntelliSense.

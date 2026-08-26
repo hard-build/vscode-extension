@@ -3,7 +3,7 @@
   "displayName": "Hard Build",
   "icon": "hard-build-square.png",
   "description": "First-class build, test, diagnostics, task, and IntelliSense support for hard C and C++ projects.",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "publisher": "hard-build",
   "license": "MIT",
   "repository": {
@@ -317,7 +317,7 @@
     "lint": "eslint src test",
     "test": "npm run compile && node --test out/test/*.test.js",
     "check": "npm run lint && npm test",
-    "package": "npm run check && vsce package --out hard-vscode-0.1.4.vsix",
+    "package": "npm run check && vsce package --out hard-vscode-0.1.5.vsix",
     "vscode:prepublish": "npm run compile"
   },
   "dependencies": {
